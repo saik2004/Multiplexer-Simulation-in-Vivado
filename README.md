@@ -66,7 +66,7 @@ Once done, close the simulation by going to Simulation → "Close Simulation".
 
 
 ### 4:1 MUX Behavioral Implementation
-
+```
 module mux4_1(i,s,y);
 input [3:0]i;
 input[1:0]s;
@@ -80,10 +80,10 @@ case(s)
 default:y=4'b0;
 endcase
 endmodule
-
+```
 
 ## Testbench Implementation
-
+```
 module mux4_1tb;
 reg [3:0]i;
 reg [1:0]s;
@@ -103,7 +103,7 @@ s=2'b11;
 //$display("no value assigned");
 end
 endmodule
-
+```
 ## Sample Output
 
 ![Screenshot 2024-10-08 113256](https://github.com/user-attachments/assets/5a56fe04-e044-4b08-9d6a-32e186853568)

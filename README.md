@@ -99,8 +99,8 @@ s=2'b01;
 s=2'b10;
 #100
 s=2'b11;
-//#100
-//$display("no value assigned");
+#100
+$display("no value assigned");
 end
 endmodule
 ```

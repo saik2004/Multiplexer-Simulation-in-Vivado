@@ -1,12 +1,12 @@
-# SIMULATION AND IMPLEMENTATION OF LOGIC GATES
+# Exp No:1 Multiplexer Simulation in Vivado using verilog hdl
 
-## AIM:
+## Aim:
 To design and simulate a 4:1 Multiplexer (MUX) using Verilog HDL in four different modeling styles—Gate-Level, Data Flow, Behavioral, and Structural—and to verify its functionality through a testbench using the Vivado 2023.1 simulation environment. The experiment aims to understand how different abstraction levels in Verilog can be used to describe the same digital logic circuit and analyze their performance.
 
-### APPARATUS REQUIRED:
+## Apparatus Required:
 Vivado 2023.1
 
-### Procedure
+## Procedure
 1. Launch Vivado
 Open Vivado 2023.1 by double-clicking the Vivado icon or searching for it in the Start menu.
 2. Create a New Project
@@ -52,64 +52,314 @@ You can include the timing diagram from the simulation window showing the correc
 10. Close the Simulation
 Once done, close the simulation by going to Simulation → "Close Simulation".
 
-### Logic Diagram
+## Logic Diagram
 
 ![image](https://github.com/user-attachments/assets/d4ab4bc3-12b0-44dc-8edb-9d586d8ba856)
 
-### Truth Table
+## Truth Table
 
 ![image](https://github.com/user-attachments/assets/c850506c-3f6e-4d6b-8574-939a914b2a5f)
 
-### Verilog Code
+## Verilog Code
 
- 
+## 4:1 MUX Gate-Level Implementation
+
+module mux_v( A, B, C, D, S0, S1, Y ); 
+input A;
+input B;
+input C;
+input D;
+input S0;
+input S1;
+output Y;
+wire not_S0, not_S1;
+wire A_and, B_and, C_and, D_and;
 
 
-### 4:1 MUX Behavioral Implementation
-```
-module mux4_1(i,s,y);
-input [3:0]i;
+not (not_S0, S0);
+not (not_S1, S1);
+
+
+and (A_and, A, not_S1, not_S0);
+and (B_and, B, not_S1, S0);
+and (C_and, C, S1, not_S0);
+and (D_and, D, S1, S0);
+
+
+or (Y, A_and, B_and, C_and, D_and);
+endmodule
+
+## Testbench Code:
+
+module multi_tb;
+    reg A, B, C, D;
+    reg S0, S1;
+    wire Y;
+
+    // Instantiate the multiplexer
+    mux_v u_mux_v(
+        .A(A), 
+        .B(B), 
+        .C(C), 
+        .D(D), 
+        .S0(S0), 
+        .S1(S1), 
+        .Y(Y)
+    );
+
+    initial begin
+        // Test case 1: Select A
+        A = 1; B = 0; C = 0; D = 0; S0 = 0; S1 = 0;
+        #10;
+
+        // Test case 2: Select B
+        A = 0; B = 1; C = 0; D = 0; S0 = 1; S1 = 0;
+        #10;
+        
+        // Test case 3: Select C
+        A = 0; B = 0; C = 1; D = 0; S0 = 0; S1 = 1;
+        #10;
+
+        // Test case 4: Select D
+        A = 0; B = 0; C = 0; D = 1; S0 = 1; S1 = 1;
+        #10;
+
+        
+
+        $finish;
+    end
+
+    // Monitor outputs
+    initial begin
+        $monitor("Time = %0t, A = %0d, B = %0d, C = %0d, D = %0d, S0 = %0d, S1 = %0d, Y = %0d",
+                 $time, A, B, C, D, S0, S1, Y);
+    end
+
+endmodule
+
+ ## Output
+ ![Screenshot (15)](https://github.com/user-attachments/assets/fc6e4ec4-134c-472d-a5ae-d72549ed79c9)
+
+
+
+## 4:1 MUX Data Flow Implementation
+
+module mux_v(a,b,c,d,s,y);
+input a;
+input b;
+input c;
+input d;
+input[1:0]s;
+output y;
+
+
+
+assign y = (s==2'b00)? a:
+            (s==2'b01)? b :
+            (s==2'b10)? c : d;
+
+endmodule
+
+## Testbench Code:
+
+module multi_tb;
+    reg a, b, c, d;
+    reg [1:0] s;
+    wire y;
+
+    // Instantiate the multiplexer
+    mux_v u_mux_v(
+        .a(a), 
+        .b(b), 
+        .c(c), 
+        .d(d), 
+        .s(s), 
+        .y(y)
+    );
+
+    initial begin
+        // Test case 1: Select a
+        a = 1; b = 0; c = 0; d = 0; s = 2'b00;
+        #10;
+
+        // Test case 2: Select b
+        a = 0; b = 1; c = 0; d = 0; s = 2'b01;
+        #10;
+
+        // Test case 3: Select c
+        a = 0; b = 0; c = 1; d = 0; s = 2'b10;
+        #10;
+
+        // Test case 4: Select d
+        a = 0; b = 0; c = 0; d = 1; s = 2'b11;
+        #10;
+
+                $finish;
+    end
+
+    // Monitor outputs
+    initial begin
+        $monitor("Time = %0t, a = %0d, b = %0d, c = %0d, d = %0d, s = %0b, y = %0d",
+                 $time, a, b, c, d, s, y);
+    end
+
+endmodule
+
+## Output
+![Screenshot (16)](https://github.com/user-attachments/assets/c9e37dc7-4435-466b-ab7e-1728245fa1f8)
+
+
+
+## 4:1 MUX Behavioral Implementation
+
+module mux_v(a,b,c,d,s,y);
+input a;
+input b;
+input c;
+input d;
 input[1:0]s;
 output reg y;
-always @(i,s)
-case(s)
-2'b00:y=i[0];
-2'b01:y=i[1];
-2'b10:y=i[2];
-2'b11:y=i[3];
-default:y=4'b0;
-endcase
-endmodule
-```
 
-## Testbench Implementation
-```
-module mux4_1tb;
-reg [3:0]i;
-reg [1:0]s;
-wire y;
-mux4_1 dut(i,s,y);
-initial
-begin
-i=4'b1100;
-s=2'b00;
-#100
-s=2'b01;
-#100
-s=2'b10;
-#100
-s=2'b11;
-#100
-$display("no value assigned");
+always@(*)begin
+
+y <= (s==2'b00)? a:
+     (s==2'b01)? b :
+     (s==2'b10)? c : d;
 end
 endmodule
-```
-## Sample Output
 
-![Screenshot 2024-10-08 113256](https://github.com/user-attachments/assets/5a56fe04-e044-4b08-9d6a-32e186853568)
+## Testbench Code:
+
+module multi_tb;
+    reg a, b, c, d;
+    reg [1:0] s;
+    wire y;
+
+    // Instantiate the multiplexer
+    mux_v u_mux_v(
+        .a(a), 
+        .b(b), 
+        .c(c), 
+        .d(d), 
+        .s(s), 
+        .y(y)
+    );
+
+    initial begin
+        // Test case 1: Select input a
+        a = 1; b = 0; c = 0; d = 0; s = 2'b00;
+        #10;
+
+        // Test case 2: Select input b
+        a = 0; b = 1; c = 0; d = 0; s = 2'b01;
+        #10;
+
+        // Test case 3: Select input c
+        a = 0; b = 0; c = 1; d = 0; s = 2'b10;
+        #10;
+        
+        // Test case 4: Select input d
+        a = 0; b = 0; c = 0; d = 1; s = 2'b11;
+        #10;
+
+        $finish;
+    end
+
+    // Monitor outputs
+    initial begin
+        $monitor("Time = %0t, a = %0d, b = %0d, c = %0d, d = %0d, s = %0b, y = %0d",
+                 $time, a, b, c, d, s, y);
+    end
+
+endmodule
+
+## Output
+![Screenshot (14)](https://github.com/user-attachments/assets/23bbfe8d-377e-4b68-a0bb-e511eb9b85fb)
 
 
-### Conclusion:
+## 4:1 MUX Structural Implementation
+
+module mux_v(
+    a, b, c, d,  // Inputs
+    s0, s1,      // Select lines
+    y           // Output
+);
+
+    input a, b, c, d;
+    input s0, s1;
+    output y;
+
+    wire not_s0, not_s1;
+    wire a_and, b_and, c_and, d_and;
+
+    // Invert select lines
+    not u_not_s0(not_s0, s0);
+    not u_not_s1(not_s1, s1);
+
+    // AND gates for each input
+    and u_a_and(a_and, a, not_s1, not_s0);
+    and u_b_and(b_and, b, not_s1, s0);
+    and u_c_and(c_and, c, s1, not_s0);
+    and u_d_and(d_and, d, s1, s0);
+
+    // OR gate to combine AND outputs
+    or u_or(y, a_and, b_and, c_and, d_and);
+
+endmodule
+
+## Testbench Code:
+
+module multi_tb;
+    reg a, b, c, d;
+    reg s0, s1;
+    wire y;
+
+    // Instantiate the multiplexer
+    mux_v u_mux_v(
+        .a(a), 
+        .b(b), 
+        .c(c), 
+        .d(d), 
+        .s0(s0), 
+        .s1(s1), 
+        .y(y)
+    );
+
+    initial begin
+        // Test case 1: Select a
+        a = 1; b = 0; c = 0; d = 0; s0 = 0; s1 = 0;
+        #10;
+
+        // Test case 2: Select b
+        a = 0; b = 1; c = 0; d = 0; s0 = 1; s1 = 0;
+        #10;
+
+        // Test case 3: Select c
+        a = 0; b = 0; c = 1; d = 0; s0 = 0; s1 = 1;
+        #10;
+
+        // Test case 4: Select d
+        a = 0; b = 0; c = 0; d = 1; s0 = 1; s1 = 1;
+        #10;
+        
+        $finish;
+    end
+
+    // Monitor outputs
+    initial begin
+        $monitor("Time = %0t, a = %0d, b = %0d, c = %0d, d = %0d, s0 = %0d, s1 = %0d, y = %0d",
+                 $time, a, b, c, d, s0, s1, y);
+    end
+
+endmodule
+
+
+## Output
+![Screenshot (17)](https://github.com/user-attachments/assets/12a0f7fc-5a87-40bc-a917-15ffe0b0add2)
+
+
+
+## Conclusion:
 
 In this experiment, a 4:1 Multiplexer was successfully designed and simulated using Verilog HDL across four different modeling styles: Gate-Level, Data Flow, Behavioral, and Structural. The simulation results verified the correct functionality of the MUX, with all implementations producing identical outputs for the given input conditions.
 
